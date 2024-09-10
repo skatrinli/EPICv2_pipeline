@@ -25,6 +25,10 @@ Dependencies:
 - data.table
 - stringr
 
+How to download the necessary annotation file: 
+- Download the annotation file from Peter at al., 2024 (Additional File 4) at https://bmcgenomics.biomedcentral.com/articles/10.1186/s12864-024-10027-5
+- Rename the file as pidsley2024.csv 
+- Put the file under MethylationEPICv2.0Files directory
 ###########################################################################################################################################################################
 
 IMPORTANT INFORMATION TO NOTE ON OUTPUT:
