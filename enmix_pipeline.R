@@ -196,8 +196,7 @@ cat("\n")
 ## - EWAStools duplicate check
 print("Checking duplicates")
 
-beta <- metadata(RGset) %>% detectionP %>% correct_dye_bias %>% dont_normalize
-snps <- metadata(RGset)$manifest[probe_type == "rs", index]
+snps <- getSnpBeta(RGset)
 snps <- beta[snps, ]
 genotypes <- call_genotypes(snps, learn = FALSE)
 donor_id <- enumerate_sample_donors(genotypes)
