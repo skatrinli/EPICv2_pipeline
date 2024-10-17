@@ -197,7 +197,6 @@ cat("\n")
 print("Checking duplicates")
 
 snps <- getSnpBeta(RGset)
-snps <- beta[snps, ]
 genotypes <- call_genotypes(snps, learn = FALSE)
 donor_id <- enumerate_sample_donors(genotypes)
 names(donor_id) <- RGset@metadata[["meta"]][["sample_id"]]
