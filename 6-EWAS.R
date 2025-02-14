@@ -69,30 +69,8 @@ epicv2manifestfilename = paste0(OTHERPATH, "pidsley2024.csv")
 annot = data.table::fread(epicv2manifestfilename, header=T,
                                stringsAsFactors = F, sep=",", fill=T)
 
-# Remove a column by its name  
-# removed CHR column because it had a chromomsome numbered "0" which dont exist, therefore now this dataframe should merge correctly 
-annot <- subset(annot, select = -CHR)
-colnames(annot)
-
-# Remove columns 57 to 78
-annot <- annot[, -(57:78)]
-annot <- annot[, -(29:48)]
-annot <- annot[, -(3:15)]
-annot <- annot[, -(4:9)]
-annot <- annot[, -(15:18)]
-annot <- annot[, -(13:14)]
-annot <- annot[, -(6:9)]
-annot <- annot[, -(6:8)]
-
-# Remove IlmnID column
-annot <- annot %>% select(-IlmnID)
-
-# find duplicates in annotation file 
-sum(duplicated(annot$Name)) 
-
-# If there are duplicates, keep only the first occurrence
-annot <- annot[!duplicated(annot$Name), ]
+annot <- annot[,c("Name","CpG_chrm","CpG_beg","UCSC_RefGene_Name")]
 
 # Merge ewas with annot, keeping all rows from ewas
-ewas_merged <- merge(results, annot, by.x = 1, by.y = "Name", all.x = TRUE)
+ewas_merged <- merge(results, annot, by = 1)
 write.csv(ewas_merged, file = paste0(OUTPUTPATH, PROJECTNAME,"_",mainVar,"_EWAS.csv"), row.names = FALSE) # Save the phenotype file with cell types
