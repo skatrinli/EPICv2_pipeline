@@ -12,7 +12,7 @@ OTHERPATH <- "/my/otherfile/path/"
 file.pathname = paste0(OTHERPATH, "AncillaryFiles/cpgs_within_0bp_of_TGP_SNP.rdata")
 
 ## Load beta values (not ComBAT adjusted beta values, just normalized beta values)
-BETAFILE_PASS <- get(load("QC_Output/RUSH_betas_without_suffix_passQC.RData"))
+BETAFILE_PASS <- get(load(paste0(OUTPUTPATH, PROJECTNAME, "_betas_without_suffix_passQC.RData")))
 
 ### Load and call location.based.pc() function that we've shared to compute principal components
 ### This function will select only CpG sites in the location-based annotation file,
