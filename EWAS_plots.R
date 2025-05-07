@@ -32,5 +32,5 @@ df$CpG_chrm<-as.numeric(df$CpG_chrm)
 jpeg(filename = paste(PROJECTNAME,"_Manhattan_plot.jpeg", sep = "_"), width = 4, height = 2, 
      units = "in", res = 300, pointsize = 4)
 manhattan(df, chr = "CpG_chrm", bp = "CpG_beg", p = "P.value", snp = "CPG.Labels", col = c("darkred", "darkblue"), 
-          chrlabs = c(0:22, "X", "Y"), suggestiveline = -log10(9e-08), logp = TRUE)
+          chrlabs = c(1:22, "X", "Y"), genomewideline = -log10(9e-08), suggestiveline = F, logp = TRUE)
 dev.off()
