@@ -14,9 +14,9 @@ Rscript --vanilla enmix_pipeline.R /inputpath/for/raw_idats/ /outputpath/ /other
 ###########################################################################################################################################################################
 
 Dependencies:
-- ENmix
+- ENmix v1.44.3
 - minfi
-- ewastools
+- ewastools v1.8
 - impute
 - tidyverse
 - IlluminaHumanMethylationEPICv2manifest
