@@ -229,7 +229,7 @@ qc1 <- QCinfo(RGset,
               samplethre = 0.05,         # % of low quality methylation data points across probes for each sample
               CpGthre = 0.05,            # % of low quality methylation data points across samples for each probe
               bisulthre = NULL,         # Threshold of bisulfite intensity
-              outlier = TRUE, 
+              outlier = FALSE, 
               distplot = TRUE)
 
 
@@ -302,26 +302,24 @@ cat("\n")
 
 ################################################################################
 ## Outputting QCinfo information.
-## Find the outlier sample
 print("QCinfo processing finished. Outputting failed samples.")
-out <- qc1$badsample
-pheno[pheno$SampleID%in%out,c(1,2)]
-
-
-bisulfite_fails = names(which(qc1$bisul < bisulfthreshold))
-outlier_samples = qc1$outlier_sample
+bad <- qc1$badsample
+pheno[pheno$SampleID%in%bad,c(1,2)]
 
 print("Samples failed from bisulfite failures:")
+bisulfite_fails = names(which(qc1$bisul < bisulfthreshold))
 bifailures = pheno[pheno$SampleID %in% bisulfite_fails,][,1:2]
 bifailures
 cat("\n")
-print("Outlier samples:")
-outlierfailures = pheno[pheno$SampleID %in% outlier_samples,][,1:2]
-outlierfailures
-cat("\n")
+
+# print("Outlier samples:")
+# outlierfailures = pheno[pheno$SampleID %in% outlier_samples,][,1:2]
+# outlierfailures
+# cat("\n")
+
 print("QCinfo 'badsamples':")
-enmixspecific_badsamples = pheno[pheno$SampleID %in% qc1$badsample,][,1:2]
-enmixspecific_badsamples
+lowQ_CpG = pheno[pheno$SampleID %in% bad[bad%ni%bisulfite_fails],][,1:2]
+lowQ_CpG
 cat("\n")
 
 ################################################################################
@@ -339,35 +337,16 @@ all_samples_for_flagged = all_samples_for_flagged %>%
                      all_samples_for_flagged$SampleID %ni% bifailures$SampleID ~ "PASS"))
 
 all_samples_for_flagged = all_samples_for_flagged %>%
-  mutate(ENmix_outlier_flags =
-           case_when(all_samples_for_flagged$SampleID %in% outlierfailures$SampleID ~ "FAIL",
-                     all_samples_for_flagged$SampleID %ni% outlierfailures$SampleID ~ "PASS"))
+  mutate(ENmix_lowQ_CpG_greater0.05 =
+           case_when(all_samples_for_flagged$SampleID %in% lowQ_CpG$SampleID ~ "FAIL",
+                     all_samples_for_flagged$SampleID %ni% lowQ_CpG$SampleID ~ "PASS"))
 
 all_samples_for_flagged = all_samples_for_flagged %>%
-  mutate(ENmix_flags =
-           case_when(all_samples_for_flagged$SampleID %in% enmixspecific_badsamples$SampleID ~ "FAIL",
-                     all_samples_for_flagged$SampleID %ni% enmixspecific_badsamples$SampleID ~ "PASS"))
-
+  mutate(ENmix_flags_combined =
+           case_when(all_samples_for_flagged$SampleID %in% bad ~ "FAIL",
+                     all_samples_for_flagged$SampleID %ni% bad ~ "PASS"))
 
 control_samples = all_samples_for_flagged[all_samples_for_flagged$CONTROL == "TRUE",] # HERE
-
-control_samples = control_samples %>%
-  mutate(control_flagged_by_checks =
-           case_when((control_samples$ewastools_controls == "FAIL") ~ TRUE,
-                     (control_samples$ENmix_bisulfite_flags == "FAIL") ~ TRUE,
-                     (control_samples$ENmix_outlier_flags == "FAIL") ~ TRUE,
-                     (control_samples$ENmix_flags == "FAIL") ~ TRUE,
-                     (control_samples$ewastools_controls == "PASS") ~ FALSE,
-                     (control_samples$ENmix_bisulfite_flags == "PASS") ~ FALSE,
-                     (control_samples$ENmix_outlier_flags == "PASS") ~ FALSE,
-                     (control_samples$ENmix_flags == "PASS") ~ FALSE))
-true_control_samples = control_samples[control_samples$control_flagged_by_checks == TRUE,]
-false_control_samples = control_samples[control_samples$control_flagged_by_checks == FALSE,]
-all_samples_for_flagged = all_samples_for_flagged %>%
-  mutate(control_flagged =
-           case_when(all_samples_for_flagged$SampleID %in% true_control_samples$SampleID ~ TRUE,
-                     all_samples_for_flagged$SampleID %in% false_control_samples$SampleID ~ FALSE,
-                     all_samples_for_flagged$SampleID %ni% control_samples$SampleID ~ NA))
 
 ################################################################################
 ## Clening to save memory
@@ -521,7 +500,7 @@ print("Save complete.")
 cat("\n")
 
 print("Saving the FINAL beta value data frames without the suffixes and without failed samples and controls.")
-all_samples_pass <-subset(all_samples_for_flagged, failed == FALSE & CONTROL == FALSE & ENmix_flags == "PASS")
+all_samples_pass <-subset(all_samples_for_flagged, failed == FALSE & CONTROL == FALSE & ENmix_flags_combined == "PASS")
 BETAFILE_PASS <- BETAFILE_suffix_adj[,colnames(BETAFILE_suffix_adj) %in% all_samples_pass$SampleID]
 print(paste0("Number of samples remaining after removing controls and failed samples: ", dim(all_samples_pass)[1]))
 save(BETAFILE_PASS, file=paste0(OUTPUTPATH, PROJECTNAME, "_betas_without_suffix_passQC.RData"))
