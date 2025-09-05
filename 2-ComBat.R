@@ -89,7 +89,6 @@ age <- as.numeric(phen[,age])
 if (length(levels(sex)) == 1) {
   moddata <- model.matrix(~mainvar+age)
 } else {
-  sex<-as.factor(phen[,sex])
   moddata <- model.matrix(~mainvar+age+sex)
 }
 
